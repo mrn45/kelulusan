@@ -1,0 +1,6 @@
+{
+  "name": "Portal Kelulusan Siswa",
+  "description": "Website Pengumuman Kelulusan Siswa Online dengan verifikasi NISN, Tanggal Lahir, Sambutan Kepala Sekolah, dan galeri dokumentasi sekolah.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
