@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React, { useRef, useState } from 'react';
+import React, { useRef, useState, useEffect } from 'react';
 import { 
   Award, 
   Clock, 
@@ -32,6 +32,57 @@ interface GraduationLetterProps {
 export function GraduationLetter({ student, schoolInfo, onClose }: GraduationLetterProps) {
   const cardRef = useRef<HTMLDivElement>(null);
   const [isDownloading, setIsDownloading] = useState(false);
+  const [base64Photo, setBase64Photo] = useState<string | null>(null);
+
+  useEffect(() => {
+    let isActive = true;
+    if (student.fotoSiswa && !student.fotoSiswa.startsWith('data:') && !student.fotoSiswa.startsWith('blob:')) {
+      const fetchImage = async () => {
+        try {
+          // Trying multiple proxy options to bypass CORS dynamically
+          const proxies = [
+            `https://api.allorigins.win/get?url=${encodeURIComponent(student.fotoSiswa as string)}`,
+            `https://corsproxy.io/?${encodeURIComponent(student.fotoSiswa as string)}`
+          ];
+          
+          let success = false;
+          
+          // Try allorigins GET which returns JSON with base64 `contents`
+          try {
+            const res = await fetch(proxies[0]);
+            if (res.ok) {
+              const data = await res.json();
+              if (data.contents && data.contents.startsWith('data:image')) {
+                if (isActive) setBase64Photo(data.contents);
+                success = true;
+              }
+            }
+          } catch (e) {
+            console.warn("Proxy 1 failed", e);
+          }
+          
+          // If allorigins gets JSON fails, try another proxy that returns raw image blob
+          if (!success) {
+            const res2 = await fetch(proxies[1]);
+            if (res2.ok) {
+               const blob = await res2.blob();
+               const reader = new FileReader();
+               reader.onloadend = () => {
+                 if (isActive && reader.result) {
+                   setBase64Photo(reader.result as string);
+                 }
+               };
+               reader.readAsDataURL(blob);
+            }
+          }
+        } catch (e) {
+          console.error("Gagal memuat proxy gambar siswa", e);
+        }
+      };
+      fetchImage();
+    }
+    return () => { isActive = false; };
+  }, [student.fotoSiswa]);
 
   const handleDownloadImage = async () => {
     if (!cardRef.current) return;
@@ -41,7 +92,8 @@ export function GraduationLetter({ student, schoolInfo, onClose }: GraduationLet
       const dataUrl = await toPng(cardRef.current, { 
         cacheBust: true, 
         pixelRatio: 2,
-        backgroundColor: '#ffffff'
+        backgroundColor: '#ffffff',
+        imagePlaceholder: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsEAAA7BAbiRa+0AAAANSURBVBhXY3jP4PgfAAWpA61H1Xk0AAAAAElFTkSuQmCC', // Fallback transparent pixel when external image fetch fails due to CORS
       });
       
       const link = document.createElement('a');
@@ -105,7 +157,7 @@ export function GraduationLetter({ student, schoolInfo, onClose }: GraduationLet
           <div className="w-24 h-32 md:w-28 md:h-36 bg-stone-50 border border-stone-200 rounded-2xl overflow-hidden flex-shrink-0 flex items-center justify-center p-1 shadow-xs relative group">
             {student.fotoSiswa ? (
               <img 
-                src={student.fotoSiswa} 
+                src={base64Photo || student.fotoSiswa} 
                 alt={student.nama} 
                 className="w-full h-full object-cover rounded-xl transition duration-500 group-hover:scale-105" 
                 referrerPolicy="no-referrer" 
@@ -176,12 +228,17 @@ export function GraduationLetter({ student, schoolInfo, onClose }: GraduationLet
               <span className="block text-xxs font-extrabold uppercase text-stone-400 tracking-widest leading-none">STATUS PENETAPAN</span>
               
               {student.status === 'LULUS' ? (
-                <div className="p-6 bg-emerald-50 border border-emerald-100/70 rounded-2xl space-y-2 shadow-3xs">
+                <div className="p-6 bg-emerald-50 border border-emerald-100/70 rounded-2xl space-y-3 shadow-3xs">
                   <div className="flex items-center gap-2 text-emerald-950 font-extrabold text-lg">
                     <FileCheck2 className="w-6 h-6 text-emerald-650 animate-bounce" />
                     Dinyatakan LULUS
                   </div>
-                  <p className="text-xs text-emerald-900 leading-relaxed font-sans mt-1">
+                  {student.predikat && (
+                    <div className="inline-flex items-center px-2.5 py-1 rounded-md bg-emerald-100/80 text-emerald-800 text-xs font-bold uppercase tracking-wider">
+                      Predikat: {student.predikat}
+                    </div>
+                  )}
+                  <p className="text-xs text-emerald-900 leading-relaxed font-sans mt-2">
                     Selamat! Anda telah resmi menyelesaikan dan dinyatakan lulus dari seluruh rangkaian kewajiban akademis jenjang akhir di <strong>{schoolInfo.namaSekolah}</strong>.
                   </p>
                 </div>

@@ -525,6 +525,17 @@ export function AdminPanel({
     reader.readAsArrayBuffer(file);
   };
 
+  const handleUpdateStudentStatus = (nisnToUpdate: string, newStatus: 'LULUS' | 'TIDAK_LULUS' | 'DITUNDA') => {
+    const updated = students.map((s) => {
+      if (s.nisn === nisnToUpdate) {
+        return { ...s, status: newStatus };
+      }
+      return s;
+    });
+    onUpdateStudents(updated);
+    showToast('Status kelulusan berhasil diubah!', 'success');
+  };
+
   const handleDeleteStudent = (nisnToDelete: string) => {
     if (confirm('Apakah Anda yakin ingin menghapus data siswa ini?')) {
       const updated = students.filter((s) => s.nisn !== nisnToDelete);
@@ -929,11 +940,21 @@ export function AdminPanel({
                             </td>
                             <td className="p-2 font-mono text-slate-600">{st.tanggalLahir}</td>
                             <td className="p-2 font-semibold">
-                              <span className={`px-1.5 py-0.5 rounded text-[9px] ${
-                                st.status === 'LULUS'
-                                  ? 'bg-emerald-50 text-emerald-700'
-                                  : 'bg-rose-50 text-rose-700'
-                              }`}>{st.status}</span>
+                              <select
+                                value={st.status}
+                                onChange={(e) => handleUpdateStudentStatus(st.nisn, e.target.value as any)}
+                                className={`px-1.5 py-1 rounded text-[10px] font-bold border-0 cursor-pointer outline-none ${
+                                  st.status === 'LULUS'
+                                    ? 'bg-emerald-50 text-emerald-700 hover:bg-emerald-100'
+                                    : st.status === 'DITUNDA'
+                                      ? 'bg-amber-50 text-amber-700 hover:bg-amber-100'
+                                      : 'bg-rose-50 text-rose-700 hover:bg-rose-100'
+                                }`}
+                              >
+                                <option value="LULUS">LULUS</option>
+                                <option value="TIDAK_LULUS">TIDAK LULUS</option>
+                                <option value="DITUNDA">DITUNDA</option>
+                              </select>
                             </td>
                             <td className="p-2 text-center">
                               <button
