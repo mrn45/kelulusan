@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React from 'react';
+import React, { useRef, useState } from 'react';
 import { 
   Award, 
   Clock, 
@@ -17,9 +17,11 @@ import {
   BookOpen,
   ArrowLeft,
   GraduationCap,
-  Sparkles
+  Sparkles,
+  Share2
 } from 'lucide-react';
 import { Student, SchoolInfo } from '../data';
+import { toPng } from 'html-to-image';
 
 interface GraduationLetterProps {
   student: Student;
@@ -28,6 +30,54 @@ interface GraduationLetterProps {
 }
 
 export function GraduationLetter({ student, schoolInfo, onClose }: GraduationLetterProps) {
+  const cardRef = useRef<HTMLDivElement>(null);
+  const [isSharing, setIsSharing] = useState(false);
+
+  const handleShareImage = async () => {
+    if (!cardRef.current) return;
+    
+    try {
+      setIsSharing(true);
+      const dataUrl = await toPng(cardRef.current, { 
+        cacheBust: true, 
+        pixelRatio: 2,
+        backgroundColor: '#ffffff'
+      });
+      
+      const response = await fetch(dataUrl);
+      const blob = await response.blob();
+      const file = new File([blob], `Kelulusan_${student.nama.replace(/\s+/g, '_')}.png`, { type: blob.type });
+
+      let shared = false;
+      if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
+        try {
+          await navigator.share({
+            title: `Hasil Kelulusan - ${student.nama}`,
+            text: `Alhamdulillah, ini adalah hasil kelulusan saya dari ${schoolInfo.namaSekolah}.`,
+            files: [file],
+          });
+          shared = true;
+        } catch (shareError) {
+          console.warn('Panggilan Web Share API dibatalkan atau tidak didukung di dalam iFrame, mencoba unduh file sebagai alternatif.', shareError);
+        }
+      } 
+      
+      if (!shared) {
+        const link = document.createElement('a');
+        link.download = `Kelulusan_${student.nama.replace(/\s+/g, '_')}.png`;
+        link.href = dataUrl;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+      }
+    } catch (error) {
+      console.error('Failed to generate or share image', error);
+      alert('Gagal membuat atau membagikan gambar kelulusan. Halaman mungkin memiliki gambar dari sumber yang tidak mengizinkan akses (CORS).');
+    } finally {
+      setIsSharing(false);
+    }
+  };
+
   return (
     <div className="space-y-6">
       {/* Top Interactive Web Header */}
@@ -44,16 +94,25 @@ export function GraduationLetter({ student, schoolInfo, onClose }: GraduationLet
           </div>
         </div>
 
-        <button
-          onClick={onClose}
-          className="flex items-center gap-1.5 px-4 py-2 bg-emerald-700 hover:bg-emerald-800 text-white text-xs font-bold rounded-xl transition cursor-pointer active:scale-95 shadow-sm"
-        >
-          <ArrowLeft className="w-4 h-4" /> Kembali ke Pencarian
-        </button>
+        <div className="flex items-center gap-2">
+          <button
+            onClick={handleShareImage}
+            disabled={isSharing}
+            className="flex-1 sm:flex-none justify-center items-center gap-1.5 px-3 py-2 bg-[#2d2d2d] hover:bg-[#3d3d3d] text-white text-xs font-bold rounded-xl transition cursor-pointer active:scale-95 shadow-sm disabled:opacity-75 disabled:cursor-wait flex"
+          >
+            {isSharing ? <Sparkles className="w-4 h-4 animate-spin" /> : <Share2 className="w-4 h-4" />} Bagikan
+          </button>
+          <button
+            onClick={onClose}
+            className="flex-1 sm:flex-none justify-center items-center gap-1.5 px-3 py-2 bg-emerald-700 hover:bg-emerald-800 text-white text-xs font-bold rounded-xl transition cursor-pointer active:scale-95 shadow-sm flex"
+          >
+            <ArrowLeft className="w-4 h-4" /> Kembali
+          </button>
+        </div>
       </div>
 
       {/* Main Single Dashboard Card for Student Results */}
-      <div className="print-area bg-white rounded-3xl border border-emerald-100 shadow-lg p-4 sm:p-6 md:p-8 lg:p-10 space-y-6 sm:space-y-8 relative overflow-hidden transition-all duration-300 hover:border-emerald-200">
+      <div ref={cardRef} className="print-area bg-white rounded-3xl border border-emerald-100 shadow-lg p-4 sm:p-6 md:p-8 lg:p-10 space-y-6 sm:space-y-8 relative overflow-hidden transition-all duration-300 hover:border-emerald-200">
         
         {/* Absolute dynamic accent vector background lines */}
         <div className="absolute top-0 right-0 w-32 h-32 bg-emerald-500/5 rounded-full blur-2xl pointer-events-none select-none" />
