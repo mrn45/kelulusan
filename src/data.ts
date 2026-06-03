@@ -72,7 +72,7 @@ export const DEFAULT_SCHOOL_INFO: SchoolInfo = {
   tahunAjaran: "2025/2026",
   tanggalPengumuman: "2026-06-02",
   sambutanKepalaSekolah: "Assalamu'alaikum Warahmatullahi Wabarakatuh.\n\nAlhamdulillahi rabbil 'alamin, puji dan syukur senantiasa kita panjatkan kehadirat Allah SWT atas segala limpahan rahmat, hidayah, dan karunia-Nya. Shalawat serta salam semoga senantiasa tercurah kepada junjungan kita, Baginda Nabi Agung Muhammad SAW, keluarga, sahabat, serta para pengikutnya yang setia hingga akhir zaman.\n\nHari ini merupakan momen bersejarah dan penuh kesyukuran yang kita nanti-nantikan bersama. Pengumuman kelulusan ini adalah buah dari perjuangan, kesabaran, dan ketekunan anak-anakku sekalian selama tiga tahun menempuh pendidikan di SMP Islam Assyafiiyah. Prestasi ini tidak luput dari doa ikhlas orang tua serta bimbingan penuh kasih dari bapak dan ibu guru.\n\nKelulusan tingkat SMP bukanlah akhir dari perjalanan menuntut ilmu, melainkan gerbang awal untuk melangkah ke jenjang pendidikan yang lebih tinggi. Jagalah selalu shalatmu, implementasikan akhlakul karimah yang telah ditanamkan di sekolah ini, serta jadilah insan yang jujur, berkarakter mulia, dan bermanfaat bagi agama, nusa, dan bangsa.\n\nSelamat atas kelulusan kalian, anak-anakku tercinta. Teruslah bersemangat dalam menuntut ilmu, raihlah cita-citamu setinggi langit, dan buatlah orang tuamu bangga di dunia dan akhirat. Barakallahu fiikum.\n\nWassalamu'alaikum Warahmatullahi Wabarakatuh.",
-  fotoKepalaSekolah: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?q=80&w=200&auto=format&fit=crop",
+  fotoKepalaSekolah: "https://kommodo.ai/i/l6gVIqIAq2RzvrUupqxb",
   logoSekolah: "",
   namaYayasan: "YAYASAN ASSYAFIIYAH",
   templateSklPembuka: "Yang bertanda tangan di bawah ini, Kepala {namaSekolah} menerangkan bahwa siswa berikut ini:",
@@ -86,9 +86,10 @@ export function getStoredSchoolInfo(): SchoolInfo {
     try {
       const parsed = JSON.parse(data);
       // Auto-migrate if it has the older principal's or school's info cached in the user's browser
-      if (parsed.kepalaSekolah.includes("Ahmad Fauzi") || parsed.namaSekolah !== DEFAULT_SCHOOL_INFO.namaSekolah) {
-        localStorage.setItem(SCHOOL_INFO_KEY, JSON.stringify(DEFAULT_SCHOOL_INFO));
-        return DEFAULT_SCHOOL_INFO;
+      if (parsed.kepalaSekolah.includes("Ahmad Fauzi") || parsed.namaSekolah !== DEFAULT_SCHOOL_INFO.namaSekolah || parsed.fotoKepalaSekolah === "/kepsek.png" || parsed.fotoKepalaSekolah === "https://images.unsplash.com/photo-1544005313-94ddf0286df2?q=80&w=200&auto=format&fit=crop") {
+        const merged = { ...parsed, fotoKepalaSekolah: DEFAULT_SCHOOL_INFO.fotoKepalaSekolah };
+        localStorage.setItem(SCHOOL_INFO_KEY, JSON.stringify(merged));
+        return merged;
       }
       // Fill missing template fields for backward compatibility
       if (!parsed.hasOwnProperty('templateSklPembuka') || !parsed.hasOwnProperty('namaYayasan') || !parsed.hasOwnProperty('akreditasi')) {

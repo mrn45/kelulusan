@@ -1,0 +1,98 @@
+{
+  "entities": {
+    "Student": {
+      "title": "Student",
+      "description": "Student graduation data and graduation scores",
+      "type": "object",
+      "properties": {
+        "nisn": { "type": "string", "description": "National Student Identification Number" },
+        "nama": { "type": "string", "description": "Full name of the student" },
+        "tanggalLahir": { "type": "string", "description": "Birth date in YYYY-MM-DD format" },
+        "tempatLahir": { "type": "string", "description": "Birth place of the student" },
+        "nomorPeserta": { "type": "string", "description": "Examination participant number" },
+        "kelas": { "type": "string", "description": "Classroom or grade section" },
+        "status": { "type": "string", "enum": ["LULUS", "TIDAK_LULUS", "DITUNDA"], "description": "Graduation status" },
+        "predikat": { "type": "string", "description": "Graduation academic predicate" },
+        "nilai": {
+          "type": "object",
+          "description": "Graduation grades map",
+          "properties": {
+            "Bahasa Indonesia": { "type": "number" },
+            "Matematika": { "type": "number" },
+            "Bahasa Inggris": { "type": "number" },
+            "Pendidikan Agama Islam": { "type": "number" }
+          },
+          "required": [
+            "Bahasa Indonesia",
+            "Matematika",
+            "Bahasa Inggris",
+            "Pendidikan Agama Islam"
+          ]
+        },
+        "catatan": { "type": "string", "description": "Teacher graduation notes or remarks" },
+        "fotoSiswa": { "type": "string", "description": "Optional HTTP link URL for student photo" }
+      },
+      "required": ["nisn", "nama", "tanggalLahir", "tempatLahir", "nomorPeserta", "kelas", "status", "predikat", "nilai", "catatan"]
+    },
+    "SchoolSettings": {
+      "title": "SchoolSettings",
+      "description": "General settings and details about the school",
+      "type": "object",
+      "properties": {
+        "namaSekolah": { "type": "string", "description": "Name of the school" },
+        "npsn": { "type": "string", "description": "National School Number" },
+        "akreditasi": { "type": "string", "description": "Accreditation grade" },
+        "kepalaSekolah": { "type": "string", "description": "Name of the school principal" },
+        "nipKepalaSekolah": { "type": "string", "description": "NIP of the school principal" },
+        "sambutanKepalaSekolah": { "type": "string", "description": "Principal's official welcoming speech" },
+        "alamat": { "type": "string", "description": "Address of the school" },
+        "tahunAjaran": { "type": "string", "description": "Academic school year" },
+        "tanggalPengumuman": { "type": "string", "description": "Announcement opening date (YYYY-MM-DD)" },
+        "fotoKepalaSekolah": { "type": "string", "description": "Optional link URL of the principal photo" },
+        "logoSekolah": { "type": "string", "description": "Optional link URL of the school logo" },
+        "namaYayasan": { "type": "string", "description": "Optional school foundation name" },
+        "templateSklPembuka": { "type": "string", "description": "Optional opening body of graduation certificate template" },
+        "templateSklPenutup": { "type": "string", "description": "Optional closing body of graduation certificate template" }
+      },
+      "required": [
+        "namaSekolah",
+        "npsn",
+        "akreditasi",
+        "kepalaSekolah",
+        "nipKepalaSekolah",
+        "sambutanKepalaSekolah",
+        "alamat",
+        "tahunAjaran",
+        "tanggalPengumuman"
+      ]
+    },
+    "GalleryItem": {
+      "title": "GalleryItem",
+      "description": "Graduation activity documentation gallery photos",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "description": "ID of the gallery photo" },
+        "title": { "type": "string", "description": "Title of the photo activity" },
+        "description": { "type": "string", "description": "Detailed description of the activity" },
+        "fallbackIcon": { "type": "string", "description": "Lucide icon string fallback" },
+        "color": { "type": "string", "description": "Tailwind color gradient classes" },
+        "imageUrl": { "type": "string", "description": "Direct link URL to the gallery image" }
+      },
+      "required": ["id", "title", "description", "fallbackIcon", "color"]
+    }
+  },
+  "firestore": {
+    "/students/{nisn}": {
+      "schema": "Student",
+      "description": "Student collection indexable by NISN"
+    },
+    "/settings/school_info": {
+      "schema": "SchoolSettings",
+      "description": "Single settings object for general school details"
+    },
+    "/gallery/{id}": {
+      "schema": "GalleryItem",
+      "description": "Documentation gallery storage"
+    }
+  }
+}

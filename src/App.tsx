@@ -28,8 +28,18 @@ import {
   saveGallery,
   Student, 
   SchoolInfo,
-  GalleryItem
+  GalleryItem,
+  DEFAULT_SCHOOL_INFO,
+  DOCUMENTATION_GALLERY
 } from './data';
+import {
+  getStudentsFromFirestore,
+  saveStudentsBatchToFirestore,
+  getSchoolInfoFromFirestore,
+  saveSchoolInfoToFirestore,
+  getGalleryFromFirestore,
+  saveGalleryBatchToFirestore
+} from './firebaseService';
 import { PrincipalGreeting } from './components/PrincipalGreeting';
 import { StudentChecker } from './components/StudentChecker';
 import { GraduationLetter } from './components/GraduationLetter';
@@ -43,12 +53,33 @@ export default function App() {
   const [searchResult, setSearchResult] = useState<Student | null | undefined>(undefined);
   const [isLoading, setIsLoading] = useState(false);
   const [currentDateString, setCurrentDateString] = useState('');
+  const [isFirebaseLoading, setIsFirebaseLoading] = useState(true);
 
   // Initial load
   useEffect(() => {
-    setStudents(getStoredStudents());
-    setSchoolInfo(getStoredSchoolInfo());
-    setGallery(getStoredGallery());
+    const loadFirebaseData = async () => {
+      try {
+        setIsFirebaseLoading(true);
+        // Fetch values from Firestore, with local storage fallback
+        const dbSchoolInfo = await getSchoolInfoFromFirestore(DEFAULT_SCHOOL_INFO);
+        setSchoolInfo(dbSchoolInfo);
+
+        const dbGallery = await getGalleryFromFirestore(DOCUMENTATION_GALLERY);
+        setGallery(dbGallery);
+
+        const dbStudents = await getStudentsFromFirestore();
+        setStudents(dbStudents);
+      } catch (err) {
+        console.error("Firebase fetch error, falling back to local storage: ", err);
+        setStudents(getStoredStudents());
+        setSchoolInfo(getStoredSchoolInfo());
+        setGallery(getStoredGallery());
+      } finally {
+        setIsFirebaseLoading(false);
+      }
+    };
+
+    loadFirebaseData();
     
     // Set formatted indonesian current date
     const date = new Date();
@@ -90,9 +121,14 @@ export default function App() {
     }
   }, [students]);
 
-  const handleUpdateStudents = (updatedList: Student[]) => {
+  const handleUpdateStudents = async (updatedList: Student[]) => {
     setStudents(updatedList);
     saveStudents(updatedList);
+    try {
+      await saveStudentsBatchToFirestore(updatedList);
+    } catch (err) {
+      console.error("Failed to sync students to Firebase:", err);
+    }
     
     // If we have an active search result, make sure we reflect edits
     if (searchResult) {
@@ -105,14 +141,24 @@ export default function App() {
     }
   };
 
-  const handleUpdateSchoolInfo = (updatedInfo: SchoolInfo) => {
+  const handleUpdateSchoolInfo = async (updatedInfo: SchoolInfo) => {
     setSchoolInfo(updatedInfo);
     saveSchoolInfo(updatedInfo);
+    try {
+      await saveSchoolInfoToFirestore(updatedInfo);
+    } catch (err) {
+      console.error("Failed to sync school info to Firebase:", err);
+    }
   };
 
-  const handleUpdateGallery = (updatedGallery: GalleryItem[]) => {
+  const handleUpdateGallery = async (updatedGallery: GalleryItem[]) => {
     setGallery(updatedGallery);
     saveGallery(updatedGallery);
+    try {
+      await saveGalleryBatchToFirestore(updatedGallery);
+    } catch (err) {
+      console.error("Failed to sync gallery to Firebase:", err);
+    }
   };
 
   const smoothScrollToElement = (id: string, customOffset?: number) => {

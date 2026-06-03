@@ -1,0 +1,28 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Default deny for safety
+    match /{document=**} {
+      allow read, write: if false;
+    }
+    
+    // Students data can be read by anyone (needed for graduation checker search)
+    // In actual production, write operations should be restricted to authenticated admins.
+    match /students/{nisn} {
+      allow read: if true;
+      allow write: if true;
+    }
+    
+    // School settings can be read publicly to show the banner, welcome message, and school info.
+    match /settings/{docId} {
+      allow read: if true;
+      allow write: if true;
+    }
+    
+    // Gallery can be viewed publicly by anyone
+    match /gallery/{id} {
+      allow read: if true;
+      allow write: if true;
+    }
+  }
+}

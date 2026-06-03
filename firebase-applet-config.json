@@ -3,6 +3,7 @@
   "appId": "1:983351224519:web:15247b21788925941db6e2",
   "apiKey": "AIzaSyAcVQjkuoNs7l6pp5CoocquyE94sKEvXPA",
   "authDomain": "balmy-simplicity-c8gvj.firebaseapp.com",
+  "firestoreDatabaseId": "ai-studio-1b909413-4f10-4b81-a191-07731d0fc43a",
   "storageBucket": "balmy-simplicity-c8gvj.firebasestorage.app",
   "messagingSenderId": "983351224519",
   "measurementId": ""
