@@ -64,7 +64,7 @@ export const SCHOOL_INFO_KEY = 'school_info_data';
 
 export const DEFAULT_SCHOOL_INFO: SchoolInfo = {
   namaSekolah: "SMP ISLAM ASSYAFIIYAH",
-  npsn: "20103284",
+  npsn: "20564362",
   akreditasi: "B",
   kepalaSekolah: "MAIMUN, S.Pd.I",
   nipKepalaSekolah: "-",
@@ -73,7 +73,7 @@ export const DEFAULT_SCHOOL_INFO: SchoolInfo = {
   tanggalPengumuman: "2026-06-02",
   sambutanKepalaSekolah: "Assalamu'alaikum Warahmatullahi Wabarakatuh.\n\nAlhamdulillahi rabbil 'alamin, puji dan syukur senantiasa kita panjatkan kehadirat Allah SWT atas segala limpahan rahmat, hidayah, dan karunia-Nya. Shalawat serta salam semoga senantiasa tercurah kepada junjungan kita, Baginda Nabi Agung Muhammad SAW, keluarga, sahabat, serta para pengikutnya yang setia hingga akhir zaman.\n\nHari ini merupakan momen bersejarah dan penuh kesyukuran yang kita nanti-nantikan bersama. Pengumuman kelulusan ini adalah buah dari perjuangan, kesabaran, dan ketekunan anak-anakku sekalian selama tiga tahun menempuh pendidikan di SMP Islam Assyafiiyah. Prestasi ini tidak luput dari doa ikhlas orang tua serta bimbingan penuh kasih dari bapak dan ibu guru.\n\nKelulusan tingkat SMP bukanlah akhir dari perjalanan menuntut ilmu, melainkan gerbang awal untuk melangkah ke jenjang pendidikan yang lebih tinggi. Jagalah selalu shalatmu, implementasikan akhlakul karimah yang telah ditanamkan di sekolah ini, serta jadilah insan yang jujur, berkarakter mulia, dan bermanfaat bagi agama, nusa, dan bangsa.\n\nSelamat atas kelulusan kalian, anak-anakku tercinta. Teruslah bersemangat dalam menuntut ilmu, raihlah cita-citamu setinggi langit, dan buatlah orang tuamu bangga di dunia dan akhirat. Barakallahu fiikum.\n\nWassalamu'alaikum Warahmatullahi Wabarakatuh.",
   fotoKepalaSekolah: "https://kommodo.ai/i/l6gVIqIAq2RzvrUupqxb",
-  logoSekolah: "",
+  logoSekolah: "https://www.image2url.com/r2/default/images/1780496476541-444d23e1-b1f4-4fbc-af7b-3afc5791e1de.png",
   namaYayasan: "YAYASAN ASSYAFIIYAH",
   templateSklPembuka: "Yang bertanda tangan di bawah ini, Kepala {namaSekolah} menerangkan bahwa siswa berikut ini:",
   templateSklPenutup: "Surat Keterangan Kelulusan ini berlaku sementara sampai dengan diterbitkannya Ijazah asli siswa. Lembar pengumuman kelulusan digital ini terintegrasi langsung dengan database resmi Dapodik pendidikan sekolah {tahunAjaran}."
@@ -86,8 +86,21 @@ export function getStoredSchoolInfo(): SchoolInfo {
     try {
       const parsed = JSON.parse(data);
       // Auto-migrate if it has the older principal's or school's info cached in the user's browser
-      if (parsed.kepalaSekolah.includes("Ahmad Fauzi") || parsed.namaSekolah !== DEFAULT_SCHOOL_INFO.namaSekolah || parsed.fotoKepalaSekolah === "/kepsek.png" || parsed.fotoKepalaSekolah === "https://images.unsplash.com/photo-1544005313-94ddf0286df2?q=80&w=200&auto=format&fit=crop") {
-        const merged = { ...parsed, fotoKepalaSekolah: DEFAULT_SCHOOL_INFO.fotoKepalaSekolah };
+      if (
+        parsed.kepalaSekolah.includes("Ahmad Fauzi") || 
+        parsed.namaSekolah !== DEFAULT_SCHOOL_INFO.namaSekolah || 
+        parsed.npsn === "20103284" ||
+        parsed.fotoKepalaSekolah === "/kepsek.png" || 
+        parsed.fotoKepalaSekolah === "https://images.unsplash.com/photo-1544005313-94ddf0286df2?q=80&w=200&auto=format&fit=crop" ||
+        !parsed.logoSekolah ||
+        parsed.logoSekolah === ""
+      ) {
+        const merged = { 
+          ...parsed, 
+          npsn: DEFAULT_SCHOOL_INFO.npsn,
+          fotoKepalaSekolah: DEFAULT_SCHOOL_INFO.fotoKepalaSekolah,
+          logoSekolah: DEFAULT_SCHOOL_INFO.logoSekolah
+        };
         localStorage.setItem(SCHOOL_INFO_KEY, JSON.stringify(merged));
         return merged;
       }

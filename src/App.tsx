@@ -256,9 +256,18 @@ export default function App() {
       <header className="bg-white border-b border-stone-200 py-3 sm:py-4 px-4 sm:px-6 lg:px-8 shadow-xs sticky top-0 bg-white/95 backdrop-blur-md z-40 print-hidden">
         <div className="max-w-7xl mx-auto flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div className="flex items-center gap-3 md:gap-3.5">
-            <div className="w-10 h-10 md:w-12 md:h-12 shrink-0 bg-emerald-650 rounded-xl flex items-center justify-center text-white shadow-sm hover:scale-105 transition-transform duration-300">
-              <GraduationCap className="w-6 h-6 md:w-7 md:h-7 text-white" />
-            </div>
+            {schoolInfo.logoSekolah ? (
+              <img 
+                src={schoolInfo.logoSekolah} 
+                alt={`Logo ${schoolInfo.namaSekolah}`} 
+                className="w-10 h-10 md:w-12 md:h-12 shrink-0 object-contain hover:scale-105 transition-transform duration-300"
+                referrerPolicy="no-referrer"
+              />
+            ) : (
+              <div className="w-10 h-10 md:w-12 md:h-12 shrink-0 bg-emerald-650 rounded-xl flex items-center justify-center text-white shadow-sm hover:scale-105 transition-transform duration-300">
+                <GraduationCap className="w-6 h-6 md:w-7 md:h-7 text-white" />
+              </div>
+            )}
             <div>
               <h1 className="font-extrabold text-emerald-900 text-base sm:text-lg md:text-xl tracking-tight leading-none uppercase">
                 {schoolInfo.namaSekolah}
@@ -296,7 +305,12 @@ export default function App() {
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-6 sm:mt-8 space-y-8 sm:space-y-10">
 
         {/* Hero Banner Showcase (Academic Badge) */}
-        <div className="relative bg-gradient-to-r from-emerald-900 via-emerald-950 to-stone-900 rounded-3xl overflow-hidden p-6 md:p-12 shadow-md text-white print-hidden">
+        <motion.div 
+          initial={{ opacity: 0, y: 30 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
+          className="relative bg-gradient-to-r from-emerald-900 via-emerald-950 to-stone-900 rounded-3xl overflow-hidden p-6 md:p-12 shadow-md text-white print-hidden"
+        >
           <div className="absolute inset-0 opacity-[0.06] pointer-events-none bg-[radial-gradient(#ffffff_1px,transparent_1px)] [background-size:20px_20px]" />
           
           <div className="max-w-2xl space-y-4 relative z-10">
@@ -328,15 +342,29 @@ export default function App() {
               <GraduationCap className="w-64 h-64 text-emerald-400" />
             </div>
           </div>
-        </div>
+        </motion.div>
 
         {/* Section 1: Sambutan Kepala Sekolah */}
-        <section id="sambutan-section" className="space-y-4 print-hidden">
+        <motion.section 
+          id="sambutan-section" 
+          className="space-y-4 print-hidden"
+          initial={{ opacity: 0, y: 30 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: "-50px" }}
+          transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+        >
           <PrincipalGreeting schoolInfo={schoolInfo} />
-        </section>
+        </motion.section>
 
         {/* Section 2: Verification Portal Search */}
-        <section id="pencarian-section" className="scroll-mt-24 space-y-4 print-hidden">
+        <motion.section 
+          id="pencarian-section" 
+          className="scroll-mt-24 space-y-4 print-hidden"
+          initial={{ opacity: 0, y: 30 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: "-50px" }}
+          transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+        >
           <StudentChecker 
             students={students}
             onSearch={handleSearch}
@@ -344,16 +372,20 @@ export default function App() {
             onClear={handleCloseResult}
             isLoading={isLoading}
           />
-        </section>
+        </motion.section>
 
         {/* Loader component for search verification */}
         {isLoading && (
-          <div className="py-20 flex flex-col items-center justify-center space-y-4 print-hidden">
+          <motion.div 
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            className="py-20 flex flex-col items-center justify-center space-y-4 print-hidden"
+          >
             <Loader2 className="w-10 h-10 text-emerald-700 animate-spin" />
             <p className="text-xs text-emerald-800 font-bold tracking-widest uppercase font-mono animate-pulse">
               Mengautentikasi NISN Siswa...
             </p>
-          </div>
+          </motion.div>
         )}
 
         {/* Section 3: Examination / Letter Results */}
@@ -403,12 +435,26 @@ export default function App() {
         </AnimatePresence>
 
         {/* Section 4: Galeri Dokumentasi */}
-        <section id="galeri-section" className="pt-6 space-y-4 print-hidden">
+        <motion.section 
+          id="galeri-section" 
+          className="pt-6 space-y-4 print-hidden"
+          initial={{ opacity: 0, y: 30 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: "-50px" }}
+          transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+        >
           <GallerySection galleryItems={gallery} />
-        </section>
+        </motion.section>
 
         {/* Section 5: Simulator / Admin parameters settings */}
-        <section id="admin-section" className="pt-6 space-y-4 print-hidden">
+        <motion.section 
+          id="admin-section" 
+          className="pt-6 space-y-4 print-hidden"
+          initial={{ opacity: 0, y: 30 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: "-50px" }}
+          transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+        >
           <AdminPanel 
             students={students}
             schoolInfo={schoolInfo}
@@ -417,7 +463,7 @@ export default function App() {
             onUpdateSchoolInfo={handleUpdateSchoolInfo}
             onUpdateGallery={handleUpdateGallery}
           />
-        </section>
+        </motion.section>
 
       </main>
 

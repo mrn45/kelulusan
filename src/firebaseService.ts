@@ -74,7 +74,27 @@ export async function getSchoolInfoFromFirestore(defaultInfo: SchoolInfo): Promi
   try {
     const snap = await getDoc(docRef);
     if (snap.exists()) {
-      return snap.data() as SchoolInfo;
+      const data = snap.data() as SchoolInfo;
+      let needsMigration = false;
+      const merged = { ...data };
+
+      // Auto-migrate if logoSekolah is empty
+      if (!data.logoSekolah || data.logoSekolah === "") {
+        merged.logoSekolah = defaultInfo.logoSekolah;
+        needsMigration = true;
+      }
+      
+      // Auto-migrate old NPSN
+      if (data.npsn === "20103284") {
+        merged.npsn = defaultInfo.npsn;
+        needsMigration = true;
+      }
+
+      if (needsMigration) {
+        await setDoc(docRef, merged);
+        return merged;
+      }
+      return data;
     } else {
       // Seed with default
       await setDoc(docRef, defaultInfo);

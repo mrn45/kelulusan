@@ -18,7 +18,7 @@ import {
   ArrowLeft,
   GraduationCap,
   Sparkles,
-  Share2
+  Download
 } from 'lucide-react';
 import { Student, SchoolInfo } from '../data';
 import { toPng } from 'html-to-image';
@@ -31,50 +31,30 @@ interface GraduationLetterProps {
 
 export function GraduationLetter({ student, schoolInfo, onClose }: GraduationLetterProps) {
   const cardRef = useRef<HTMLDivElement>(null);
-  const [isSharing, setIsSharing] = useState(false);
+  const [isDownloading, setIsDownloading] = useState(false);
 
-  const handleShareImage = async () => {
+  const handleDownloadImage = async () => {
     if (!cardRef.current) return;
     
     try {
-      setIsSharing(true);
+      setIsDownloading(true);
       const dataUrl = await toPng(cardRef.current, { 
         cacheBust: true, 
         pixelRatio: 2,
         backgroundColor: '#ffffff'
       });
       
-      const response = await fetch(dataUrl);
-      const blob = await response.blob();
-      const file = new File([blob], `Kelulusan_${student.nama.replace(/\s+/g, '_')}.png`, { type: blob.type });
-
-      let shared = false;
-      if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
-        try {
-          await navigator.share({
-            title: `Hasil Kelulusan - ${student.nama}`,
-            text: `Alhamdulillah, ini adalah hasil kelulusan saya dari ${schoolInfo.namaSekolah}.`,
-            files: [file],
-          });
-          shared = true;
-        } catch (shareError) {
-          console.warn('Panggilan Web Share API dibatalkan atau tidak didukung di dalam iFrame, mencoba unduh file sebagai alternatif.', shareError);
-        }
-      } 
-      
-      if (!shared) {
-        const link = document.createElement('a');
-        link.download = `Kelulusan_${student.nama.replace(/\s+/g, '_')}.png`;
-        link.href = dataUrl;
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-      }
+      const link = document.createElement('a');
+      link.download = `Kelulusan_${student.nama.replace(/\s+/g, '_')}.png`;
+      link.href = dataUrl;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
     } catch (error) {
-      console.error('Failed to generate or share image', error);
-      alert('Gagal membuat atau membagikan gambar kelulusan. Halaman mungkin memiliki gambar dari sumber yang tidak mengizinkan akses (CORS).');
+      console.error('Failed to generate or download image', error);
+      alert('Gagal membuat atau mengunduh gambar kelulusan. Halaman mungkin memiliki gambar dari sumber yang tidak mengizinkan akses (CORS).');
     } finally {
-      setIsSharing(false);
+      setIsDownloading(false);
     }
   };
 
@@ -96,11 +76,11 @@ export function GraduationLetter({ student, schoolInfo, onClose }: GraduationLet
 
         <div className="flex items-center gap-2">
           <button
-            onClick={handleShareImage}
-            disabled={isSharing}
+            onClick={handleDownloadImage}
+            disabled={isDownloading}
             className="flex-1 sm:flex-none justify-center items-center gap-1.5 px-3 py-2 bg-[#2d2d2d] hover:bg-[#3d3d3d] text-white text-xs font-bold rounded-xl transition cursor-pointer active:scale-95 shadow-sm disabled:opacity-75 disabled:cursor-wait flex"
           >
-            {isSharing ? <Sparkles className="w-4 h-4 animate-spin" /> : <Share2 className="w-4 h-4" />} Bagikan
+            {isDownloading ? <Sparkles className="w-4 h-4 animate-spin" /> : <Download className="w-4 h-4" />} Unduh
           </button>
           <button
             onClick={onClose}
